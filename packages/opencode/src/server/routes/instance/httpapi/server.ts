@@ -272,8 +272,9 @@ const app = LayerNode.group([
 export function createRoutes(
   corsOptions?: CorsOptions,
 ): Layer.Layer<never, EffectConfig.ConfigError, RouteRequirements> {
+  const builtInTools = Flag.OPENCODE_V2_BUILTIN_TOOLS
   const locationServiceMapV2 = buildLocationServiceMap([], {
-    builtInTools: !Flag.OPENCODE_V2_DISABLE_BUILTIN_TOOLS,
+    builtInTools: builtInTools === undefined || builtInTools === "*" ? true : builtInTools.split(","),
   })
 
   return Layer.mergeAll(

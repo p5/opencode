@@ -8,9 +8,23 @@ export type ServerOptions = {
   signal?: AbortSignal
   timeout?: number
   config?: Config
-  /** Register OpenCode's built-in tools. Defaults to true. */
-  builtInTools?: boolean
+  /** Omit or pass true for all built-ins, false or [] for none, or select names. */
+  builtInTools?: boolean | readonly BuiltInTool[]
 }
+
+export type BuiltInTool =
+  | "apply_patch"
+  | "bash"
+  | "edit"
+  | "glob"
+  | "grep"
+  | "question"
+  | "read"
+  | "skill"
+  | "todowrite"
+  | "webfetch"
+  | "websearch"
+  | "write"
 
 export type TuiOptions = {
   project?: string
@@ -40,7 +54,14 @@ export async function createOpencodeServer(options?: ServerOptions) {
       OPENCODE_CONFIG_CONTENT: JSON.stringify(options.config ?? {}),
       ...(options.builtInTools === undefined
         ? {}
-        : { OPENCODE_V2_DISABLE_BUILTIN_TOOLS: String(!options.builtInTools) }),
+        : {
+            OPENCODE_V2_BUILTIN_TOOLS:
+              typeof options.builtInTools === "boolean"
+                ? options.builtInTools
+                  ? "*"
+                  : ""
+                : options.builtInTools.join(","),
+          }),
     },
   })
   let clear = () => {}

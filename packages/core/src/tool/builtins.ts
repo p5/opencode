@@ -1,6 +1,7 @@
 export * as BuiltInTools from "./builtins"
 
 import { makeLocationNode } from "../effect/app-node"
+import { LayerNode } from "../effect/layer-node"
 import { Layer } from "effect"
 import { BashTool } from "./bash"
 import { ApplyPatchTool } from "./apply-patch"
@@ -28,6 +29,21 @@ import { WriteTool } from "./write"
  * repo_clone, repo_overview, plan_exit, and Rune/code mode. Keep MCP and plugin
  * transforms separate from this static built-in list.
  */
+const tools = {
+  apply_patch: ApplyPatchTool.node,
+  bash: BashTool.node,
+  edit: EditTool.node,
+  glob: GlobTool.node,
+  grep: GrepTool.node,
+  question: QuestionTool.node,
+  read: ReadTool.node,
+  skill: SkillTool.node,
+  todowrite: TodoWriteTool.node,
+  webfetch: WebFetchTool.node,
+  websearch: WebSearchTool.node,
+  write: WriteTool.node,
+}
+
 export const node = makeLocationNode({
   name: "built-in-tools",
   layer: Layer.empty,
@@ -46,3 +62,6 @@ export const node = makeLocationNode({
     WriteTool.node,
   ],
 })
+
+export const select = (names: readonly string[]) =>
+  LayerNode.group(Object.entries(tools).flatMap(([name, node]) => (names.includes(name) ? [node] : [])))
