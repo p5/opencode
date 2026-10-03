@@ -8,6 +8,8 @@ export type ServerOptions = {
   signal?: AbortSignal
   timeout?: number
   config?: Config
+  /** Register OpenCode's built-in tools. Defaults to true. */
+  builtInTools?: boolean
 }
 
 export type TuiOptions = {
@@ -36,6 +38,9 @@ export async function createOpencodeServer(options?: ServerOptions) {
     env: {
       ...process.env,
       OPENCODE_CONFIG_CONTENT: JSON.stringify(options.config ?? {}),
+      ...(options.builtInTools === undefined
+        ? {}
+        : { OPENCODE_V2_DISABLE_BUILTIN_TOOLS: String(!options.builtInTools) }),
     },
   })
   let clear = () => {}

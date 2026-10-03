@@ -78,11 +78,17 @@ export const locationServices = LayerNode.group([
   SessionRunnerLLM.node,
 ])
 
+const locationServicesWithoutBuiltInTools = {
+  ...locationServices,
+  dependencies: locationServices.dependencies.filter((dependency) => dependency !== BuiltInTools.node),
+}
+
 export type LocationServices = LayerNode.Output<typeof locationServices>
 export type LocationError = LayerNode.Error<typeof locationServices>
 
 export function buildLocationServiceMap(
   replacements: LayerNode.Replacements = [],
+  options: { builtInTools?: boolean } = {},
 ): Layer.Layer<LocationServiceMap.Service> {
   return Layer.effect(
     LocationServiceMap.Service,
@@ -93,7 +99,11 @@ export function buildLocationServiceMap(
         // introduce new tagged dependencies (Location.boundNode depends on
         // Project), and the hoist walk is the only pass that can still slice
         // those back out.
-        const location = LayerNode.hoist(locationServices, Node.tags.values.global, allReplacements)
+        const location = LayerNode.hoist(
+          options.builtInTools === false ? locationServicesWithoutBuiltInTools : locationServices,
+          Node.tags.values.global,
+          allReplacements,
+        )
 
         return LayerNode.compile(location.node).pipe(
           Layer.fresh,
